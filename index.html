@@ -215,8 +215,35 @@ async function getFortune(){
 
     document.getElementById("resultArea").classList.remove("hidden");
 
-    document.getElementById("result").innerText = data.reply;
+document.getElementById("result").innerText = data.reply;
 
+const imageMap = {
+  "夜桜": "images/yozakura.png",
+  "オロチ": "images/orochi.png",
+  "楊貴妃": "images/youkihi.png",
+  "幹之": "images/miyuki.png",
+  "サファイア": "images/sapphire.png",
+  "三色ラメ": "images/sanshoku.png",
+  "パンダ": "images/panda.png"
+};
+
+const medakaImage = document.getElementById("medakaImage");
+
+let imagePath = "";
+
+for (const name in imageMap) {
+  if (data.reply.includes(name)) {
+    imagePath = imageMap[name];
+    break;
+  }
+}
+
+if (imagePath) {
+  medakaImage.src = imagePath;
+  medakaImage.style.display = "block";
+} else {
+  medakaImage.style.display = "none";
+}
   }catch(error){
 
     document.getElementById("loading").innerText =
