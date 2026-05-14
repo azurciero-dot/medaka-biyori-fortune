@@ -21,9 +21,10 @@ body{
 
 .card{
   background:white;
-  border-radius:20px;
+  border-radius:22px;
   padding:25px;
   box-shadow:0 4px 15px rgba(0,0,0,0.08);
+  margin-top:20px;
 }
 
 button{
@@ -37,6 +38,10 @@ button{
   font-size:16px;
 }
 
+button:hover{
+  background:#cde7df;
+}
+
 .hidden{
   display:none;
 }
@@ -47,6 +52,16 @@ button{
   margin-top:20px;
   line-height:1.8;
 }
+
+.medaka-img{
+  width:180px;
+  display:none;
+  margin:0 auto 20px;
+}
+
+.title{
+  color:#4d7c73;
+}
 </style>
 </head>
 
@@ -54,210 +69,167 @@ button{
 
 <div class="container">
 
-<h1>🐟 Medaka Biyori</h1>
+<h1 class="title">🐟 Medaka Biyori</h1>
 
 <div id="start" class="card">
+  <p>
+    3つの質問に答えると、<br>
+    AIがあなたに似合うメダカを占います。
+  </p>
 
-<p>
-3つの質問に答えると、
-AIがあなたに似合うメダカを占います。
-</p>
-
-<button onclick="startQuiz()">
-診断する
-</button>
-
+  <button onclick="startQuiz()">診断する</button>
 </div>
 
 <div id="quiz" class="card hidden">
-
-<h2 id="question"></h2>
-
-<div id="answers"></div>
-
+  <h2 id="question"></h2>
+  <div id="answers"></div>
 </div>
 
 <div id="loading" class="hidden">
-
-<p>🐟 めだかが泳いでいます…</p>
-
+  <p>🐟 めだかが泳いでいます…</p>
 </div>
 
 <div id="resultArea" class="card hidden">
+  <img id="medakaImage" class="medaka-img" src="" alt="めだか画像">
 
-<div id="result" class="result"></div>
+  <div id="result" class="result"></div>
 
-<button onclick="restart()">
-もう一度占う
-</button>
-
+  <button onclick="restart()">もう一度占う</button>
 </div>
 
 </div>
 
 <script>
-
 const questions = [
-
-{
-  question:"疲れた日のあなたは？",
-  answers:[
-    "ひたすら寝る",
-    "ぼーっとする",
-    "甘いもの",
-    "誰かと話したい"
-  ]
-},
-
-{
-  question:"好きな空気感は？",
-  answers:[
-    "静かな夜",
-    "春の朝",
-    "雨の日",
-    "キラキラ"
-  ]
-},
-
-{
-  question:"もし泳ぐなら？",
-  answers:[
-    "ゆっくり",
-    "群れたい",
-    "単独行動",
-    "気まま"
-  ]
-}
-
+  {
+    question: "疲れた日のあなたは？",
+    answers: ["ひたすら寝る", "ぼーっとする", "甘いもの", "誰かと話したい"]
+  },
+  {
+    question: "好きな空気感は？",
+    answers: ["静かな夜", "春の朝", "雨の日", "キラキラ"]
+  },
+  {
+    question: "もし泳ぐなら？",
+    answers: ["ゆっくり", "群れたい", "単独行動", "気まま"]
+  }
 ];
 
 let currentQuestion = 0;
-
 let userAnswers = [];
 
 function startQuiz(){
+  currentQuestion = 0;
+  userAnswers = [];
 
   document.getElementById("start").classList.add("hidden");
-
+  document.getElementById("resultArea").classList.add("hidden");
+  document.getElementById("loading").classList.add("hidden");
   document.getElementById("quiz").classList.remove("hidden");
 
   showQuestion();
-
 }
 
 function showQuestion(){
-
   const q = questions[currentQuestion];
 
   document.getElementById("question").innerText = q.question;
 
   const answersDiv = document.getElementById("answers");
-
   answersDiv.innerHTML = "";
 
   q.answers.forEach(answer => {
-
     const btn = document.createElement("button");
-
     btn.innerText = answer;
-
-    btn.onclick = () => selectAnswer(answer);
-
+    btn.onclick = function(){
+      selectAnswer(answer);
+    };
     answersDiv.appendChild(btn);
-
   });
-
 }
 
 function selectAnswer(answer){
-
   userAnswers.push(answer);
-
   currentQuestion++;
 
   if(currentQuestion < questions.length){
-
     showQuestion();
-
   }else{
-
     getFortune();
-
   }
-
 }
 
 async function getFortune(){
-
   document.getElementById("quiz").classList.add("hidden");
-
   document.getElementById("loading").classList.remove("hidden");
 
   try{
-
-    const response = await fetch("/fortune",{
-
-      method:"POST",
-
-      headers:{
-        "Content-Type":"application/json"
+    const response = await fetch("/fortune", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
       },
-
-      body:JSON.stringify({
-        answers:userAnswers
+      body: JSON.stringify({
+        answers: userAnswers
       })
-
     });
 
     const data = await response.json();
 
     document.getElementById("loading").classList.add("hidden");
-
     document.getElementById("resultArea").classList.remove("hidden");
+    document.getElementById("result").innerText = data.reply || "結果が取得できませんでした。";
 
-document.getElementById("result").innerText = data.reply;
+    showMedakaImage(data.reply || "");
 
-const imageMap = {
-  "夜桜": "images/yozakura.png",
-  
-const medakaImage = document.getElementById("medakaImage");
-
-let imagePath = "";
-
-for (const name in imageMap) {
-  if (data.reply.includes(name)) {
-    imagePath = imageMap[name];
-    break;
-  }
-}
-
-if (imagePath) {
-  medakaImage.src = imagePath;
-  medakaImage.style.display = "block";
-} else {
-  medakaImage.style.display = "none";
-}
   }catch(error){
+    document.getElementById("loading").innerText = "エラーが発生しました";
+  }
+}
 
-    document.getElementById("loading").innerText =
-      "エラーが発生しました";
+function showMedakaImage(text){
+  const imageMap = {
+    "夜桜": "images/yozakura.png",
+    "オロチ": "images/orochi.png",
+    "楊貴妃": "images/youkihi.png",
+    "幹之": "images/miyuki.png",
+    "サファイア": "images/sapphire.png",
+    "三色ラメ": "images/sanshoku.png",
+    "パンダ": "images/panda.png"
+  };
 
+  const medakaImage = document.getElementById("medakaImage");
+
+  let imagePath = "";
+
+  for(const name in imageMap){
+    if(text.includes(name)){
+      imagePath = imageMap[name];
+      break;
+    }
   }
 
+  if(imagePath){
+    medakaImage.src = imagePath;
+    medakaImage.style.display = "block";
+  }else{
+    medakaImage.src = "";
+    medakaImage.style.display = "none";
+  }
 }
 
 function restart(){
-
   currentQuestion = 0;
-
   userAnswers = [];
 
   document.getElementById("resultArea").classList.add("hidden");
-
+  document.getElementById("loading").classList.add("hidden");
+  document.getElementById("quiz").classList.add("hidden");
   document.getElementById("start").classList.remove("hidden");
 
+  document.getElementById("result").innerText = "";
+  document.getElementById("medakaImage").style.display = "none";
 }
-
 </script>
 
 </body>
