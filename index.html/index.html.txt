@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Medaka Biyori</title>
+
+<style>
+body{
+  margin:0;
+  font-family:sans-serif;
+  background:#f4faf8;
+  color:#333;
+  text-align:center;
+}
+
+.container{
+  max-width:500px;
+  margin:auto;
+  padding:30px 20px;
+}
+
+h1{
+  color:#4d7c73;
+  font-size:32px;
+  margin-bottom:10px;
+}
+
+.subtitle{
+  color:#777;
+  margin-bottom:30px;
+}
+
+.card{
+  background:white;
+  border-radius:24px;
+  padding:25px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.08);
+}
+
+.question{
+  font-size:22px;
+  margin-bottom:20px;
+  font-weight:bold;
+}
+
+button{
+  width:100%;
+  margin:10px 0;
+  padding:14px;
+  border:none;
+  border-radius:999px;
+  background:#dff1ec;
+  font-size:16px;
+  cursor:pointer;
+}
+
+button:hover{
+  background:#cde7df;
+}
+
+.start-btn{
+  background:#f6d889;
+}
+
+.hidden{
+  display:none;
+}
+
+.result{
+  white-space:pre-wrap;
+  text-align:left;
+  line-height:1.8;
+  margin-top:20px;
+}
+
+.loading{
+  margin-top:20px;
+  color:#777;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div id="start">
+    <h1>Medaka Biyori</h1>
+
+    <p class="subtitle">
+      今日あなたのそばを泳ぐのは──
+    </p>
+
+    <div class="card">
+      <p>
+        3つの質問に答えると<br>
+        AIがあなたに似合うメダカを占います。
+      </p>
+
+      <button class="start-btn" onclick="startQuiz()">
+        診断する
+      </button>
+    </div>
+  </div>
+
+  <div id="quiz" class="hidden">
+    <div class="card">
+      <div id="question" class="question"></div>
+
+      <div id="answers"></div>
+    </div>
+  </div>
+
+  <div id="loading" class="hidden loading">
+    🐟 めだかが泳いでいます…
+  </div>
+
+  <div id="resultArea" class="hidden">
+    <div class="card">
+      <div id="result" class="result"></div>
+
+      <button onclick="restart()">
+        もう一度占う
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+
+const questions = [
+  {
+    question:"疲れた日のあなたは？",
+    answers:[
+      "ひたすら寝る",
+      "ぼーっとする",
+      "甘いものを食べる",
+      "誰かと話したい"
+    ]
+  },
+
+  {
+    question:"好きな空気感は？",
+    answers:[
+      "静かな夜",
+      "春の朝",
+      "雨の日",
+      "キラキラ"
+    ]
+  },
+
+  {
+    question:"もし泳ぐなら？",
+    answers:[
+      "ゆっくり",
+      "群れたい",
+      "単独行動",
+      "気まま"
+    ]
+  }
+];
+
+let currentQuestion = 0;
+let userAnswers = [];
+
+function startQuiz(){
+  document.getElementById("start").classList.add("hidden");
+  document.getElementById("quiz").classList.remove("hidden");
+
+  showQuestion();
+}
+
+function showQuestion(){
+
+  const q = questions[currentQuestion];
+
+  document.getElementById("question").innerText = q.question;
+
+  const answersDiv = document.getElementById("answers");
+
+  answersDiv.innerHTML = "";
+
+  q.answers.forEach(answer => {
+
+    const btn = document.createElement("button");
+
+    btn.innerText = answer;
+
+    btn.onclick = () => selectAnswer(answer);
+
+    answersDiv.appendChild(btn);
+
+  });
+
+}
+
+function selectAnswer(answer){
+
+  userAnswers.push(answer);
+
+  currentQuestion++;
+
+  if(currentQuestion < questions.length){
+
+    showQuestion();
+
+  }else{
+
+    getFortune();
+
+  }
+
+}
+
+async function getFortune(){
+
+  document.getElementById("quiz").classList.add("hidden");
+
+  document.getElementById("loading").classList.remove("hidden");
+
+  try{
+
+    const response = await fetch("/api/fortune",{
+
+      method:"POST",
+
+      headers:{
+        "Content-Type":"application/json"
+      },
+
+      body:JSON.stringify({
+        answers:userAnswers
+      })
+
+    });
+
+    const data = await response.json();
+
+    document.getElementById("loading").classList.add("hidden");
+
+    document.getElementById("resultArea").classList.remove("hidden");
+
+    document.getElementById("result").innerText = data.reply;
+
+  }catch(error){
+
+    document.getElementById("loading").innerText =
+      "エラーが発生しました";
+
+  }
+
+}
+
+function restart(){
+
+  currentQuestion = 0;
+
+  userAnswers = [];
+
+  document.getElementById("resultArea").classList.add("hidden");
+
+  document.getElementById("start").classList.remove("hidden");
+
+}
+
+</script>
+
+</body>
+</html>

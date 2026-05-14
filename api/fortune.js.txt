@@ -1,0 +1,57 @@
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
+
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "POST only" });
+  }
+
+  try {
+    const { answers } = req.body;
+
+    const prompt = `
+あなたは「Medaka Biyori」という、ゆるくてやさしいメダカ占い師です。
+
+3つの心理テスト回答から、その人に似合うメダカタイプを選びます。
+
+候補：
+夜桜、オロチ、楊貴妃、幹之、サファイア、三色ラメ、パンダ
+
+雰囲気：
+・やさしい
+・少し脱力系
+・LINEスタンプみたいに短くてかわいい
+・断定しすぎない
+・クスッとする
+・売り込み感は出さない
+
+回答：
+${answers.join(" / ")}
+
+以下の形式で日本語で返してください。
+
+【めだか】
+【ひとこと】
+【診断】
+【ラッキー水草】
+【今日のえさ】
+`;
+
+    const response = await client.responses.create({
+      model: "gpt-4.1-mini",
+      input: prompt
+    });
+
+    res.status(200).json({
+      reply: response.output_text
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: "占いに失敗しました"
+    });
+  }
+}
