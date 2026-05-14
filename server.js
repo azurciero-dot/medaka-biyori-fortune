@@ -50,6 +50,7 @@ ${answers.join(" / ")}
 【今日のえさ】
 `;
 
+
     const response = await client.responses.create({
       model: "gpt-4.1-mini",
       input: prompt,
