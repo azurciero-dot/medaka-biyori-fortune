@@ -9,7 +9,7 @@ const port = process.env.PORT || 3000;
 
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-});
+});"type": "module"
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
