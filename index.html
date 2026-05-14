@@ -3,46 +3,27 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Medaka Biyori</title>
 
 <style>
 body{
-  margin:0;
   font-family:sans-serif;
   background:#f4faf8;
-  color:#333;
   text-align:center;
+  padding:30px;
+  color:#333;
 }
 
 .container{
   max-width:500px;
   margin:auto;
-  padding:30px 20px;
-}
-
-h1{
-  color:#4d7c73;
-  font-size:32px;
-  margin-bottom:10px;
-}
-
-.subtitle{
-  color:#777;
-  margin-bottom:30px;
 }
 
 .card{
   background:white;
-  border-radius:24px;
+  border-radius:20px;
   padding:25px;
-  box-shadow:0 4px 20px rgba(0,0,0,0.08);
-}
-
-.question{
-  font-size:22px;
-  margin-bottom:20px;
-  font-weight:bold;
+  box-shadow:0 4px 15px rgba(0,0,0,0.08);
 }
 
 button{
@@ -52,16 +33,8 @@ button{
   border:none;
   border-radius:999px;
   background:#dff1ec;
-  font-size:16px;
   cursor:pointer;
-}
-
-button:hover{
-  background:#cde7df;
-}
-
-.start-btn{
-  background:#f6d889;
+  font-size:16px;
 }
 
 .hidden{
@@ -71,13 +44,8 @@ button:hover{
 .result{
   white-space:pre-wrap;
   text-align:left;
+  margin-top:20px;
   line-height:1.8;
-  margin-top:20px;
-}
-
-.loading{
-  margin-top:20px;
-  color:#777;
 }
 </style>
 </head>
@@ -86,91 +54,95 @@ button:hover{
 
 <div class="container">
 
-  <div id="start">
-    <h1>Medaka Biyori</h1>
+<h1>🐟 Medaka Biyori</h1>
 
-    <p class="subtitle">
-      今日あなたのそばを泳ぐのは──
-    </p>
+<div id="start" class="card">
 
-    <div class="card">
-      <p>
-        3つの質問に答えると<br>
-        AIがあなたに似合うメダカを占います。
-      </p>
+<p>
+3つの質問に答えると、
+AIがあなたに似合うメダカを占います。
+</p>
 
-      <button class="start-btn" onclick="startQuiz()">
-        診断する
-      </button>
-    </div>
-  </div>
+<button onclick="startQuiz()">
+診断する
+</button>
 
-  <div id="quiz" class="hidden">
-    <div class="card">
-      <div id="question" class="question"></div>
+</div>
 
-      <div id="answers"></div>
-    </div>
-  </div>
+<div id="quiz" class="card hidden">
 
-  <div id="loading" class="hidden loading">
-    🐟 めだかが泳いでいます…
-  </div>
+<h2 id="question"></h2>
 
-  <div id="resultArea" class="hidden">
-    <div class="card">
-      <div id="result" class="result"></div>
+<div id="answers"></div>
 
-      <button onclick="restart()">
-        もう一度占う
-      </button>
-    </div>
-  </div>
+</div>
+
+<div id="loading" class="hidden">
+
+<p>🐟 めだかが泳いでいます…</p>
+
+</div>
+
+<div id="resultArea" class="card hidden">
+
+<div id="result" class="result"></div>
+
+<button onclick="restart()">
+もう一度占う
+</button>
+
+</div>
 
 </div>
 
 <script>
 
 const questions = [
-  {
-    question:"疲れた日のあなたは？",
-    answers:[
-      "ひたすら寝る",
-      "ぼーっとする",
-      "甘いものを食べる",
-      "誰かと話したい"
-    ]
-  },
 
-  {
-    question:"好きな空気感は？",
-    answers:[
-      "静かな夜",
-      "春の朝",
-      "雨の日",
-      "キラキラ"
-    ]
-  },
+{
+  question:"疲れた日のあなたは？",
+  answers:[
+    "ひたすら寝る",
+    "ぼーっとする",
+    "甘いもの",
+    "誰かと話したい"
+  ]
+},
 
-  {
-    question:"もし泳ぐなら？",
-    answers:[
-      "ゆっくり",
-      "群れたい",
-      "単独行動",
-      "気まま"
-    ]
-  }
+{
+  question:"好きな空気感は？",
+  answers:[
+    "静かな夜",
+    "春の朝",
+    "雨の日",
+    "キラキラ"
+  ]
+},
+
+{
+  question:"もし泳ぐなら？",
+  answers:[
+    "ゆっくり",
+    "群れたい",
+    "単独行動",
+    "気まま"
+  ]
+}
+
 ];
 
 let currentQuestion = 0;
+
 let userAnswers = [];
 
 function startQuiz(){
+
   document.getElementById("start").classList.add("hidden");
+
   document.getElementById("quiz").classList.remove("hidden");
 
   showQuestion();
+
 }
 
 function showQuestion(){
@@ -223,7 +195,7 @@ async function getFortune(){
 
   try{
 
-    const response = await fetch("/api/fortune",{
+    const response = await fetch("/fortune",{
 
       method:"POST",
 

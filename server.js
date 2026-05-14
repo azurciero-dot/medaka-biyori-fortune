@@ -1,7 +1,5 @@
 import express from "express";
 import OpenAI from "openai";
-import path from "path";
-import { fileURLToPath } from "url";
 
 const app = express();
 
@@ -9,14 +7,11 @@ const port = process.env.PORT || 3000;
 
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-});"type": "module"
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+});
 
 app.use(express.json());
 
-app.use(express.static(__dirname));
+app.use(express.static("./"));
 
 app.post("/fortune", async (req, res) => {
 
